@@ -7,6 +7,9 @@
 
 #include "turtleMotionControl.h"
 #include "math.h"
+#include <std_srvs/Empty.h>
+#include <turtlesim/SetPen.h>
+
 using namespace std;
 
 const double ROS_RATE = 250;
@@ -17,11 +20,29 @@ turtleMotionControl::turtleMotionControl()
 	ros::NodeHandle n;
 	velPublisher = n.advertise<geometry_msgs::Twist>("/turtle1/cmd_vel",100);
 	posSubscriber = n.subscribe("/turtle1/pose",10, &turtleMotionControl::turtlePoseCallback,this);
-
+	resetSrv = n.serviceClient<std_srvs::Empty>("reset");
+	setPenSrv = n.serviceClient<turtlesim::SetPen>("/turtle1/set_pen");
 }
 
 turtleMotionControl::~turtleMotionControl() {
 	// TODO Auto-generated destructor stub
+}
+
+void turtleMotionControl::resetTurtle()
+{
+	std_srvs::Empty empty;
+	resetSrv.call(empty);
+}
+
+void turtleMotionControl::setPen(bool state)
+{
+	turtlesim::SetPen srv;
+	srv.request.off = !state;
+	srv.request.r = 255;
+	srv.request.g = 255;
+	srv.request.b = 255;
+	srv.request.width = 2;
+	setPenSrv.call(srv);
 }
 
 void turtleMotionControl::turtlePoseCallback(const turtlesim::Pose::ConstPtr & pose_message)

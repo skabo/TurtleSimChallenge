@@ -14,8 +14,7 @@ const double VEL = 1;
 
 turtleStarDrawer::turtleStarDrawer()
 {
-
-
+	turtleMotion.resetTurtle();
 }
 
 turtleStarDrawer::~turtleStarDrawer() {
@@ -27,8 +26,10 @@ void turtleStarDrawer::drawStar(double lenght, double alpha)
 	double R = lenght *(cos(alpha) + sin(alpha) / tan(THETA_2));
 	double gamma = THETA + 2 *alpha;
 
+	turtleMotion.setPen(false);
 	turtleMotion.rotateTurtle(VEL,PI/2.0,false);
 	turtleMotion.moveTurtle(VEL,R);
+	turtleMotion.setPen(true);
 
 	turtleMotion.rotateTurtle(VEL,PI-alpha,true);
 	turtleMotion.moveTurtle(VEL,lenght);
