@@ -12,13 +12,13 @@
 
 class turtleStarDrawer {
 public:
-	turtleStarDrawer();
+	turtleStarDrawer(ros::NodeHandle *n);
 	virtual ~turtleStarDrawer();
 
 	void drawStar(double lenght, double alpha);
 
 private:
-	turtleMotionControl turtleMotion;
+	turtleMotionControl *turtleMotion;
 };
 
 #endif /* TURTLESTARDRAWER_H_ */

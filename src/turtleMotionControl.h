@@ -14,7 +14,7 @@
 
 class turtleMotionControl {
 public:
-	turtleMotionControl();
+	turtleMotionControl(ros::NodeHandle *n);
 	virtual ~turtleMotionControl();
 
 	void moveTurtle(double speed, double distance);

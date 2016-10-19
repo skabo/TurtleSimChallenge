@@ -15,13 +15,13 @@ using namespace std;
 const double ROS_RATE = 250;
 
 
-turtleMotionControl::turtleMotionControl()
+turtleMotionControl::turtleMotionControl(ros::NodeHandle *n)
 {
-	ros::NodeHandle n;
-	velPublisher = n.advertise<geometry_msgs::Twist>("/turtle1/cmd_vel",100);
-	posSubscriber = n.subscribe("/turtle1/pose",10, &turtleMotionControl::turtlePoseCallback,this);
-	resetSrv = n.serviceClient<std_srvs::Empty>("reset");
-	setPenSrv = n.serviceClient<turtlesim::SetPen>("/turtle1/set_pen");
+
+	velPublisher = n->advertise<geometry_msgs::Twist>("/turtle1/cmd_vel",100);
+	posSubscriber = n->subscribe("/turtle1/pose",10, &turtleMotionControl::turtlePoseCallback,this);
+	resetSrv = n->serviceClient<std_srvs::Empty>("reset");
+	setPenSrv = n->serviceClient<turtlesim::SetPen>("/turtle1/set_pen");
 }
 
 turtleMotionControl::~turtleMotionControl() {
