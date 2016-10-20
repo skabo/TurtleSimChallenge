@@ -6,24 +6,21 @@ using namespace std;
 
 const double PI = 3.14159265359;
 const double STAR_SIDE_LENGHT = 2;
+const double STAR_POINTS_ANGLE = 15 * PI / 180.0;
 
 void commanderCallback(const std_msgs::String::ConstPtr& msg);
+turtleStarDrawer *drawer;
 
 int main(int argc, char **argv)
 {
-	double alpha;
-
     ros::init(argc, argv, "starMaker");
     ros::NodeHandle n;
 
     ros::Subscriber posSubscriber = n.subscribe("commander",10, commanderCallback);
 
-    turtleStarDrawer *drawer = new turtleStarDrawer(&n);
+    ROS_INFO("Waiting for android client commands...");
 
-    std::cout<<"Enter star angle (in degrees): ";
-    std::cin>>alpha;
-
-    drawer->drawStar(STAR_SIDE_LENGHT, alpha*PI/180.0);
+    drawer = new turtleStarDrawer(&n, STAR_SIDE_LENGHT, STAR_POINTS_ANGLE);
 
     ros::spin();
 
@@ -32,9 +29,15 @@ int main(int argc, char **argv)
 
 void commanderCallback(const std_msgs::String::ConstPtr& msg)
 {
+	ROS_INFO("Command received from client: %s", msg->data.c_str());
+
 	if( msg->data == "Start")
 	{
-		ROS_INFO("I heard: [%s]", msg->data.c_str());
+		drawer->startDrawing();
+	}
+	else if(msg->data == "Pause")
+	{
+		drawer->pauseDrawing();
 	}
 
 }

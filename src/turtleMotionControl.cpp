@@ -6,14 +6,14 @@
  */
 
 #include "turtleMotionControl.h"
-#include "math.h"
 #include <std_srvs/Empty.h>
 #include <turtlesim/SetPen.h>
 
 using namespace std;
 
 const double ROS_RATE = 250;
-
+const double MINIMUM_POSITION_ERROR = 0.01;
+const double MINIMUM_ANGLE_ERROR = 0.01;
 
 turtleMotionControl::turtleMotionControl(ros::NodeHandle *n)
 {
@@ -26,6 +26,16 @@ turtleMotionControl::turtleMotionControl(ros::NodeHandle *n)
 
 turtleMotionControl::~turtleMotionControl() {
 	// TODO Auto-generated destructor stub
+}
+
+void turtleMotionControl::pauseMovement()
+{
+	isPaused = true;
+}
+
+void turtleMotionControl::startMovement()
+{
+	isPaused = false;
 }
 
 void turtleMotionControl::resetTurtle()
@@ -55,6 +65,8 @@ void turtleMotionControl::turtlePoseCallback(const turtlesim::Pose::ConstPtr & p
 void turtleMotionControl::moveTurtle(double speed, double distance)
 {
 	geometry_msgs::Twist velMessage;
+	double xGoal;
+	double yGoal;
 
 	velMessage.linear.x = abs(speed);
 	velMessage.linear.y = 0;
@@ -63,22 +75,29 @@ void turtleMotionControl::moveTurtle(double speed, double distance)
 	velMessage.angular.y = 0;
 	velMessage.angular.z = 0;
 
-	double initialTime = ros::Time::now().toSec();
-	double actualDistance = 0;
-	double elapsedTime = 0;
+	xGoal = turtlesimPose.x + distance * cos(turtlesimPose.theta);
+	yGoal = turtlesimPose.y + distance * sin(turtlesimPose.theta);
+
 	ros::Rate loopRate(ROS_RATE);
 
 	do
 	{
+		if(isPaused)
+		{
+			velMessage.linear.x = 0;
+		}
+		else
+		{
+			velMessage.linear.x = abs(speed);
+		}
+
 		velPublisher.publish(velMessage);
-		elapsedTime = ros::Time::now().toSec();
-		actualDistance = speed * (elapsedTime - initialTime);
 		ros::spinOnce();
 		loopRate.sleep();
 
-	}while (abs(actualDistance - distance)>0.01);
+	}while (!hasTurtleReachedPosition(xGoal,yGoal));
 
-	std::cout<<actualDistance<<" , "<<distance<<" , "<<abs(actualDistance - distance)<<endl;
+	std::cout<<abs(xGoal - turtlesimPose.x)<<" , "<<abs(yGoal - turtlesimPose.y)<<endl;
 	std::cout<<"END FORWARD LOOP"<<endl;
 
 	velMessage.linear.x = 0;
@@ -90,6 +109,7 @@ void turtleMotionControl::rotateTurtle(double angularSpeed, double relativeAngle
 {
 	geometry_msgs::Twist velMessage;
 	double absoluteAngleTarget;
+	double signedSpeed;
 
 	velMessage.linear.x = 0;
 	velMessage.linear.y = 0;
@@ -99,26 +119,33 @@ void turtleMotionControl::rotateTurtle(double angularSpeed, double relativeAngle
 
 	if(clockwise)
 	{
-		velMessage.angular.z = -abs(angularSpeed);
+		signedSpeed = -abs(angularSpeed);
 		absoluteAngleTarget = turtlesimPose.theta - relativeAngle;
 	}
 	else
 	{
-		velMessage.angular.z = abs(angularSpeed);
+		signedSpeed = abs(angularSpeed);
 		absoluteAngleTarget = turtlesimPose.theta + relativeAngle;
 	}
-
-	std::cout<<turtlesimPose.theta<<" , "<<relativeAngle<<endl;
 
 	ros::Rate loopRate(ROS_RATE);
 
 	do
 	{
+		if(isPaused)
+		{
+			velMessage.angular.z = 0;
+		}
+		else
+		{
+			velMessage.angular.z = signedSpeed;
+		}
+
 		velPublisher.publish(velMessage);
 		ros::spinOnce();
         loopRate.sleep();
 
-	}while(abs(absoluteAngleTarget - turtlesimPose.theta)>0.01);
+	}while(!hasTurtleReachedAngle(absoluteAngleTarget));
 
 	std::cout<<absoluteAngleTarget<<" , "<<turtlesimPose.theta<<" , "<<abs(absoluteAngleTarget - turtlesimPose.theta)<<endl;
 	std::cout<<"END ROTATION LOOP"<<endl;
@@ -128,3 +155,12 @@ void turtleMotionControl::rotateTurtle(double angularSpeed, double relativeAngle
     ros::spinOnce();
 }
 
+bool turtleMotionControl::hasTurtleReachedPosition(double xGoal, double yGoal)
+{
+	return ((abs(xGoal-turtlesimPose.x) < MINIMUM_POSITION_ERROR) && (abs(yGoal-turtlesimPose.y) < MINIMUM_POSITION_ERROR));
+}
+
+bool turtleMotionControl::hasTurtleReachedAngle(double desiredAngle)
+{
+	return (abs(desiredAngle - turtlesimPose.theta) < MINIMUM_ANGLE_ERROR);
+}

@@ -7,13 +7,16 @@
 
 #include "turtleStarDrawer.h"
 
+
 const double PI = 3.14159265359;
 const double THETA = (2.0 * PI / 5.0);
 const double THETA_2	= (THETA / 2.0);
 const double VEL = 1;
 
-turtleStarDrawer::turtleStarDrawer(ros::NodeHandle *n)
+turtleStarDrawer::turtleStarDrawer(ros::NodeHandle *n, double starSideLenght, double starPointsAngle)
 {
+	_starPointsAngle = starPointsAngle;
+	_starSideLenght = starSideLenght;
 	turtleMotion = new turtleMotionControl(n);
 	turtleMotion->resetTurtle();
 }
@@ -22,43 +25,57 @@ turtleStarDrawer::~turtleStarDrawer() {
 	// TODO Auto-generated destructor stub
 }
 
-void turtleStarDrawer::drawStar(double lenght, double alpha)
+void turtleStarDrawer::pauseDrawing()
 {
-	double R = lenght *(cos(alpha) + sin(alpha) / tan(THETA_2));
-	double gamma = THETA + 2 *alpha;
+	turtleMotion->pauseMovement();
+}
+
+void turtleStarDrawer::startDrawing()
+{
+	turtleMotion->startMovement();
+	if(!alreadyDrawing)
+	{
+		drawStar();
+	}
+}
+
+void turtleStarDrawer::drawStar()
+{
+	double R = _starSideLenght *(cos(_starPointsAngle) + sin(_starPointsAngle) / tan(THETA_2));
+	double gamma = THETA + 2 *_starPointsAngle;
 
 	turtleMotion->setPen(false);
 	turtleMotion->rotateTurtle(VEL,PI/2.0,false);
 	turtleMotion->moveTurtle(VEL,R);
 	turtleMotion->setPen(true);
 
-	turtleMotion->rotateTurtle(VEL,PI-alpha,true);
-	turtleMotion->moveTurtle(VEL,lenght);
+	turtleMotion->rotateTurtle(VEL,PI-_starPointsAngle,true);
+	turtleMotion->moveTurtle(VEL,_starSideLenght);
 
 	turtleMotion->rotateTurtle(VEL,PI-gamma,false);
-	turtleMotion->moveTurtle(VEL,lenght);
+	turtleMotion->moveTurtle(VEL,_starSideLenght);
 
-	turtleMotion->rotateTurtle(VEL,PI-2*alpha,true);
-	turtleMotion->moveTurtle(VEL,lenght);
-
-	turtleMotion->rotateTurtle(VEL,PI-gamma,false);
-	turtleMotion->moveTurtle(VEL,lenght);
-
-	turtleMotion->rotateTurtle(VEL,PI-2*alpha,true);
-	turtleMotion->moveTurtle(VEL,lenght);
+	turtleMotion->rotateTurtle(VEL,PI-2*_starPointsAngle,true);
+	turtleMotion->moveTurtle(VEL,_starSideLenght);
 
 	turtleMotion->rotateTurtle(VEL,PI-gamma,false);
-	turtleMotion->moveTurtle(VEL,lenght);
+	turtleMotion->moveTurtle(VEL,_starSideLenght);
 
-	turtleMotion->rotateTurtle(VEL,PI-2*alpha,true);
-	turtleMotion->moveTurtle(VEL,lenght);
-
-	turtleMotion->rotateTurtle(VEL,PI-gamma,false);
-	turtleMotion->moveTurtle(VEL,lenght);
-
-	turtleMotion->rotateTurtle(VEL,PI+2*alpha,false);
-	turtleMotion->moveTurtle(VEL,lenght);
+	turtleMotion->rotateTurtle(VEL,PI-2*_starPointsAngle,true);
+	turtleMotion->moveTurtle(VEL,_starSideLenght);
 
 	turtleMotion->rotateTurtle(VEL,PI-gamma,false);
-	turtleMotion->moveTurtle(VEL,lenght);
+	turtleMotion->moveTurtle(VEL,_starSideLenght);
+
+	turtleMotion->rotateTurtle(VEL,PI-2*_starPointsAngle,true);
+	turtleMotion->moveTurtle(VEL,_starSideLenght);
+
+	turtleMotion->rotateTurtle(VEL,PI-gamma,false);
+	turtleMotion->moveTurtle(VEL,_starSideLenght);
+
+	turtleMotion->rotateTurtle(VEL,PI+2*_starPointsAngle,false);
+	turtleMotion->moveTurtle(VEL,_starSideLenght);
+
+	turtleMotion->rotateTurtle(VEL,PI-gamma,false);
+	turtleMotion->moveTurtle(VEL,_starSideLenght);
 }
