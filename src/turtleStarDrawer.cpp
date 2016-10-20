@@ -17,6 +17,8 @@ turtleStarDrawer::turtleStarDrawer(ros::NodeHandle *n, double starSideLenght, do
 {
 	_starPointsAngle = starPointsAngle;
 	_starSideLenght = starSideLenght;
+	_alreadyDrawing = false;
+
 	turtleMotion = new turtleMotionControl(n);
 	turtleMotion->resetTurtle();
 }
@@ -33,8 +35,9 @@ void turtleStarDrawer::pauseDrawing()
 void turtleStarDrawer::startDrawing()
 {
 	turtleMotion->startMovement();
-	if(!alreadyDrawing)
+	if(!_alreadyDrawing)
 	{
+		_alreadyDrawing = true;
 		drawStar();
 	}
 }
@@ -42,12 +45,18 @@ void turtleStarDrawer::startDrawing()
 void turtleStarDrawer::drawStar()
 {
 	double R = _starSideLenght *(cos(_starPointsAngle) + sin(_starPointsAngle) / tan(THETA_2));
-	double gamma = THETA + 2 *_starPointsAngle;
+	double gamma = THETA + _starPointsAngle;
 
 	turtleMotion->setPen(false);
 	turtleMotion->rotateTurtle(VEL,PI/2.0,false);
 	turtleMotion->moveTurtle(VEL,R);
 	turtleMotion->setPen(true);
+
+	turtleMotion->rotateTurtle(VEL,PI-_starPointsAngle/2.0,true);
+	turtleMotion->moveTurtle(VEL,_starSideLenght);
+
+	turtleMotion->rotateTurtle(VEL,PI-gamma,false);
+	turtleMotion->moveTurtle(VEL,_starSideLenght);
 
 	turtleMotion->rotateTurtle(VEL,PI-_starPointsAngle,true);
 	turtleMotion->moveTurtle(VEL,_starSideLenght);
@@ -55,25 +64,19 @@ void turtleStarDrawer::drawStar()
 	turtleMotion->rotateTurtle(VEL,PI-gamma,false);
 	turtleMotion->moveTurtle(VEL,_starSideLenght);
 
-	turtleMotion->rotateTurtle(VEL,PI-2*_starPointsAngle,true);
+	turtleMotion->rotateTurtle(VEL,PI-_starPointsAngle,true);
 	turtleMotion->moveTurtle(VEL,_starSideLenght);
 
 	turtleMotion->rotateTurtle(VEL,PI-gamma,false);
 	turtleMotion->moveTurtle(VEL,_starSideLenght);
 
-	turtleMotion->rotateTurtle(VEL,PI-2*_starPointsAngle,true);
+	turtleMotion->rotateTurtle(VEL,PI-_starPointsAngle,true);
 	turtleMotion->moveTurtle(VEL,_starSideLenght);
 
 	turtleMotion->rotateTurtle(VEL,PI-gamma,false);
 	turtleMotion->moveTurtle(VEL,_starSideLenght);
 
-	turtleMotion->rotateTurtle(VEL,PI-2*_starPointsAngle,true);
-	turtleMotion->moveTurtle(VEL,_starSideLenght);
-
-	turtleMotion->rotateTurtle(VEL,PI-gamma,false);
-	turtleMotion->moveTurtle(VEL,_starSideLenght);
-
-	turtleMotion->rotateTurtle(VEL,PI+2*_starPointsAngle,false);
+	turtleMotion->rotateTurtle(VEL,PI-_starPointsAngle,true);
 	turtleMotion->moveTurtle(VEL,_starSideLenght);
 
 	turtleMotion->rotateTurtle(VEL,PI-gamma,false);

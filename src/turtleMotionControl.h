@@ -12,7 +12,8 @@
 #include "geometry_msgs/Twist.h"
 #include "turtlesim/Pose.h"
 
-class turtleMotionControl {
+class turtleMotionControl
+{
 public:
 	turtleMotionControl(ros::NodeHandle *n);
 	virtual ~turtleMotionControl();

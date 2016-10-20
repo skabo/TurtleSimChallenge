@@ -14,10 +14,11 @@ using namespace std;
 const double ROS_RATE = 250;
 const double MINIMUM_POSITION_ERROR = 0.01;
 const double MINIMUM_ANGLE_ERROR = 0.01;
+const double PI = 3.14159265359;
 
 turtleMotionControl::turtleMotionControl(ros::NodeHandle *n)
 {
-
+	isPaused = false;
 	velPublisher = n->advertise<geometry_msgs::Twist>("/turtle1/cmd_vel",100);
 	posSubscriber = n->subscribe("/turtle1/pose",10, &turtleMotionControl::turtlePoseCallback,this);
 	resetSrv = n->serviceClient<std_srvs::Empty>("reset");
@@ -97,9 +98,6 @@ void turtleMotionControl::moveTurtle(double speed, double distance)
 
 	}while (!hasTurtleReachedPosition(xGoal,yGoal));
 
-	std::cout<<abs(xGoal - turtlesimPose.x)<<" , "<<abs(yGoal - turtlesimPose.y)<<endl;
-	std::cout<<"END FORWARD LOOP"<<endl;
-
 	velMessage.linear.x = 0;
 	velPublisher.publish(velMessage);
 	ros::spinOnce();
@@ -128,6 +126,16 @@ void turtleMotionControl::rotateTurtle(double angularSpeed, double relativeAngle
 		absoluteAngleTarget = turtlesimPose.theta + relativeAngle;
 	}
 
+	if (absoluteAngleTarget >= 2*PI)
+	{
+		absoluteAngleTarget -= 2*PI;
+	}
+
+	if (absoluteAngleTarget <= -2*PI)
+	{
+		absoluteAngleTarget += 2*PI;
+	}
+
 	ros::Rate loopRate(ROS_RATE);
 
 	do
@@ -146,9 +154,6 @@ void turtleMotionControl::rotateTurtle(double angularSpeed, double relativeAngle
         loopRate.sleep();
 
 	}while(!hasTurtleReachedAngle(absoluteAngleTarget));
-
-	std::cout<<absoluteAngleTarget<<" , "<<turtlesimPose.theta<<" , "<<abs(absoluteAngleTarget - turtlesimPose.theta)<<endl;
-	std::cout<<"END ROTATION LOOP"<<endl;
 
 	velMessage.angular.z = 0;
     velPublisher.publish(velMessage);

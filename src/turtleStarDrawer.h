@@ -10,7 +10,8 @@
 
 #include "turtleMotionControl.h"
 
-class turtleStarDrawer {
+class turtleStarDrawer
+{
 public:
 	turtleStarDrawer(ros::NodeHandle *n, double starSideLenght, double starPointsAngle);
 	virtual ~turtleStarDrawer();
@@ -22,7 +23,7 @@ private:
 	turtleMotionControl *turtleMotion;
 	double _starSideLenght;
 	double _starPointsAngle;
-	bool alreadyDrawing;
+	bool _alreadyDrawing;
 
 	void drawStar();
 };

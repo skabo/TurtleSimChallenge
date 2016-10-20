@@ -1,15 +1,14 @@
 #include "ros/ros.h"
 #include "turtleStarDrawer.h"
 #include <std_msgs/String.h>
+#include "starMaker.h"
 
 using namespace std;
 
 const double PI = 3.14159265359;
 const double STAR_SIDE_LENGHT = 2;
-const double STAR_POINTS_ANGLE = 15 * PI / 180.0;
+const double STAR_POINTS_ANGLE = 30 * PI / 180.0;
 
-void commanderCallback(const std_msgs::String::ConstPtr& msg);
-turtleStarDrawer *drawer;
 
 int main(int argc, char **argv)
 {
