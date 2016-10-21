@@ -31,3 +31,34 @@ Make sure that the android device and the PC running the master node are both in
 
 Click the "Connect" button and you will see a second screen with 2 buttons: "Start Drawing" and "Pause Drawing".
 Click "Start Drawing" to start turtlesim drawing a star. You can pause and star the drawing whenever you want.
+
+Running from command line:
+
+You can check the topics list with
+$ rostopic list -v
+
+And You will see:
+
+Published topics:
+ * /turtle1/color_sensor [turtlesim/Color] 1 publisher
+ * /rosout [rosgraph_msgs/Log] 3 publishers
+ * /rosout_agg [rosgraph_msgs/Log] 1 publisher
+ * /commander [std_msgs/String] 1 publisher
+ * /turtle1/cmd_vel [geometry_msgs/Twist] 1 publisher
+ * /turtle1/pose [turtlesim/Pose] 1 publisher
+
+Subscribed topics:
+ * /turtle1/cmd_vel [geometry_msgs/Twist] 1 subscriber
+ * /rosout [rosgraph_msgs/Log] 1 subscriber
+ * /commander [std_msgs/String] 1 subscriber
+ * /turtle1/pose [turtlesim/Pose] 1 subscriber
+
+The /commander topic is of the type std_msgs/String, so you can publish on this topic from command line like this:
+
+To start execution:
+$ rostopic pub -1 /commander std_msgs/String Start
+
+To pause:
+$ rostopic pub -1 /commander std_msgs/String Pause
+
+
